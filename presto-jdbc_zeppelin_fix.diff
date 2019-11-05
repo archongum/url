@@ -1,0 +1,41 @@
+From 9253806759d796b9ce8646047a890ae3f82093fa Mon Sep 17 00:00:00 2001
+From: archongum <qq349074225@live.com>
+Date: Sat, 2 Nov 2019 15:58:06 +0800
+Subject: [PATCH] fix zeppelin: Unrecognized connection property 'url'
+
+---
+ .../src/main/java/io/prestosql/jdbc/PrestoDriverUri.java    | 6 +-----
+ .../test/java/io/prestosql/jdbc/TestPrestoDriverUri.java    | 1 -
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/presto-jdbc/src/main/java/io/prestosql/jdbc/PrestoDriverUri.java b/presto-jdbc/src/main/java/io/prestosql/jdbc/PrestoDriverUri.java
+index dec4e4c3a5..bc945f2d54 100644
+--- a/presto-jdbc/src/main/java/io/prestosql/jdbc/PrestoDriverUri.java
++++ b/presto-jdbc/src/main/java/io/prestosql/jdbc/PrestoDriverUri.java
+@@ -321,11 +321,7 @@ final class PrestoDriverUri
+     private static void validateConnectionProperties(Properties connectionProperties)
+             throws SQLException
+     {
+-        for (String propertyName : connectionProperties.stringPropertyNames()) {
+-            if (ConnectionProperties.forKey(propertyName) == null) {
+-                throw new SQLException(format("Unrecognized connection property '%s'", propertyName));
+-            }
+-        }
++        // fix zeppelin: Unrecognized connection property 'url'
+ 
+         for (ConnectionProperty<?> property : ConnectionProperties.allProperties()) {
+             property.validate(connectionProperties);
+diff --git a/presto-jdbc/src/test/java/io/prestosql/jdbc/TestPrestoDriverUri.java b/presto-jdbc/src/test/java/io/prestosql/jdbc/TestPrestoDriverUri.java
+index 0309def26b..369e730d2d 100644
+--- a/presto-jdbc/src/test/java/io/prestosql/jdbc/TestPrestoDriverUri.java
++++ b/presto-jdbc/src/test/java/io/prestosql/jdbc/TestPrestoDriverUri.java
+@@ -51,7 +51,6 @@ public class TestPrestoDriverUri
+         assertInvalid("jdbc:presto://localhost:8080/a//", "Schema name is empty:");
+ 
+         // unrecognized property
+-        assertInvalid("jdbc:presto://localhost:8080/hive/default?ShoeSize=13", "Unrecognized connection property 'ShoeSize'");
+ 
+         // empty property
+         assertInvalid("jdbc:presto://localhost:8080/hive/default?SSL=", "Connection property 'SSL' value is empty");
+-- 
+2.19.1.windows.1
